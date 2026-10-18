@@ -23,6 +23,64 @@ on a local Windows machine.
    Hugging Face `Seq2SeqTrainer`.
 6. Evaluates character error rate (CER) and saves the adapter and processor.
 
+## Why fine-tune Whisper?
+
+Whisper Base is a general-purpose multilingual speech-recognition model.
+Fine-tuning starts with that pretrained model and trains it further on examples of
+the target language and task—in this project, Chinese (zh-CN) speech paired
+with Chinese transcripts. The goal is to adapt a general speech recognizer to
+a particular language and dataset without training a speech model from
+scratch.
+
+This makes the project useful as a hands-on example of the speech-recognition
+adaptation workflow: loading real audio and transcripts, converting audio to
+Whisper's expected features, training, measuring character error rate, and
+saving the resulting adapter for later use.
+
+## What LoRA adds
+
+Full fine-tuning updates all of a model's parameters. This project instead
+uses Low-Rank Adaptation (LoRA), which freezes the pretrained Whisper weights
+and trains small adapter matrices in selected attention layers. In the
+recorded run, **589,824 of 73,183,744 parameters (about 0.81%)** were
+trainable.
+
+For this project, LoRA offers several practical advantages:
+
+- **Lower training footprint:** fewer parameters need gradients and optimizer
+  state, which makes a small fine-tuning experiment more feasible on a local
+  GPU.
+- **Compact fine-tuned artifact:** the trained adapter is about 2.3 MB, rather
+  than another full copy of the base model. The base Whisper model is still
+  required when loading the adapter.
+- **Keeps the original model reusable:** the base weights are not replaced;
+  adapters can be stored and managed separately for different experiments.
+- **Accessible learning workflow:** the small trainable parameter count makes
+  it easier to explore language adaptation on modest hardware.
+
+LoRA reduces the number of trainable parameters; it does not guarantee better
+recognition accuracy, eliminate the need for GPU memory, or make a small
+training sample representative of real speech.
+
+## Potential applications
+
+A well-trained and carefully evaluated Chinese speech-recognition adapter
+could be a starting point for applications such as:
+
+- transcribing Chinese speech recordings;
+- generating draft captions or subtitles for Chinese audio and video;
+- indexing spoken content so it can be searched by its transcript; and
+- experimenting with speech input in Chinese-language applications.
+
+These are **potential uses of the approach**, not quality claims about the
+included adapter. The current adapter was trained on only 300 examples for
+100 steps and scored 85.36% CER on a 60-example evaluation subset. That score
+is poor, so the saved model should be treated as a pipeline demonstration,
+not relied on for accurate transcription. Before using an adapter in an
+application, train on a representative dataset and evaluate it on a held-out
+test set that reflects the intended speakers, accents, and recording
+conditions.
+
 ## Project files
 
 | File or directory | Purpose |
