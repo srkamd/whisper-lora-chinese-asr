@@ -1,0 +1,13 @@
+.venv/
+.venv*/
+__pycache__/
+*.py[cod]
+
+# Training checkpoints and runtime logs
+whisper-base-lora-zh/
+runs/
+
+# Local credentials
+.env
+.env.*
+!.env.example
